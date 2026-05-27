@@ -16,9 +16,9 @@
 #define BUFSIZE   256000 //big enough for the largest ciphertext files
 #define CHUNKSIZE 1000   //at most this many bytes at a time
 
-// loops over send() until every byte is written.
-// needed becauseone send() might not send everything at once.
-// returns 0 on success, -1 on error.
+//loops over send() until every byte is written.
+//needed because one send() might not send everything at once.
+//returns 0 on success, -1 on error.
 int send_all(int fd, char *buf, int len)
 {
     int total = 0;
@@ -35,8 +35,8 @@ int send_all(int fd, char *buf, int len)
     return 0;
 }
 
-// same as before, reads one byte at a time until we see '@'
-// strips the '@' and null-terminates.
+//same as before, reads one byte at a time until we see '@'
+//strips the '@' and null-terminates.
 int recv_all(int fd, char *buf, int maxlen)
 {
     int total = 0;
@@ -46,7 +46,7 @@ int recv_all(int fd, char *buf, int maxlen)
         n = recv(fd, buf + total, 1, 0);
         if (n <= 0) return -1;
         if (buf[total] == '@') {
-            buf[total] = '\0'; // strip the terminator
+            buf[total] = '\0'; //strip the terminator
             return total;
         }
         total += n;
@@ -65,7 +65,7 @@ int read_file(const char *filename, char *buf, int maxlen)
     int len = 0;
     int c;
     while ((c = fgetc(f)) != EOF && len < maxlen - 1) {
-        if (c == '\n') break; // strip the newline — we'll add one back on output
+        if (c == '\n') break; // strip the newline
         buf[len++] = (char)c;
     }
     buf[len] = '\0';
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     }
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET; // use IPv4, same as the servers — AF_UNSPEC would try IPv6 first and spam stderr
+    hints.ai_family = AF_INET; //use IPv4
     hints.ai_socktype = SOCK_STREAM;
 
     if ((rv = getaddrinfo("localhost", port, &hints, &servinfo)) != 0) {
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    // loop through all the results and connect to the first we can
+    //loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
@@ -168,13 +168,13 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    // send our identity so the server can verify we're dec_client
+    //send our identity so the server can verify we're dec_client
     if (send_all(sockfd, "dec_client@", 11) < 0) {
         fprintf(stderr, "dec_client: error sending identity\n");
         exit(2);
     }
 
-    // read server's response. "ok" means we're talking to dec_server
+    //read server's response. "ok" means we're talking to dec_server
     char id_response[32];
     memset(id_response, 0, sizeof(id_response));
     if (recv_all(sockfd, id_response, sizeof(id_response)) < 0) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
         exit(2);
     }
 
-    // if the server rejected us, we probably connected to enc_server
+    //if the server rejected us, we probably connected to enc_server
     if (strcmp(id_response, "ok") != 0) {
         fprintf(stderr, "Error: could not contact dec_server on port %s\n", port);
         close(sockfd);

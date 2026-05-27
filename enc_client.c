@@ -41,9 +41,9 @@ int send_all(int fd, char *buf, int len)
     return 0;
 }
 
-// recv_all reads one byte at a time until we see '@', which marks the end of message.
-// we use '@' because it isn't one of the 27 chars and wont appear in the data set
-// strips the '@' and null-terminates. returns byte count, or -1 on error.
+//reads one byte at a time until we see '@', which marks the end of message.
+//we use '@' because it isn't one of the 27 chars and wont appear in the data set
+//strips the '@' and null-terminates. returns byte count, or -1 on error.
 int recv_all(int fd, char *buf, int maxlen)
 {
     int total = 0;
@@ -53,7 +53,7 @@ int recv_all(int fd, char *buf, int maxlen)
         n = recv(fd, buf + total, 1, 0);
         if (n <= 0) return -1;
         if (buf[total] == '@') {
-            buf[total] = '\0'; // strip the terminator
+            buf[total] = '\0'; //strip the terminator
             return total;
         }
         total += n;
@@ -62,8 +62,8 @@ int recv_all(int fd, char *buf, int maxlen)
     return total;
 }
 
-// read_file opens a file and reads its contents into buf
-// returns number of characters read, or -1 if the file can't be opened.
+//opens a file and reads its contents into buf
+//returns number of characters read, or -1 if the file can't be opened.
 int read_file(const char *filename, char *buf, int maxlen)
 {
     FILE *f = fopen(filename, "r");
@@ -80,7 +80,7 @@ int read_file(const char *filename, char *buf, int maxlen)
     return len;
 }
 
-// is_valid_char returns 1 if the character is one of the 27 allowed chars
+//returns 1 if the character is one of the 27 allowed chars
 int is_valid_char(char c)
 {
     return (c >= 'A' && c <= 'Z') || c == ' ';
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     }
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET; // use IPv4, same as the servers — AF_UNSPEC would try IPv6 first and spam stderr
+    hints.ai_family = AF_INET; // use IPv4
     hints.ai_socktype = SOCK_STREAM;
 
     if ((rv = getaddrinfo("localhost", port, &hints, &servinfo)) != 0) {
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    // loop through all the results and connect to the first we can
+    //loop through all the results and connect to the first we can
     for(p = servinfo; p != NULL; p = p->ai_next) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype,
                 p->ai_protocol)) == -1) {
@@ -175,13 +175,13 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    // send our identity so the server can verify we're enc_client
+    //send our identity so the server can verify we're enc_client
     if (send_all(sockfd, "enc_client@", 11) < 0) {
         fprintf(stderr, "enc_client: error sending identity\n");
         exit(2);
     }
 
-    // read server's response, "ok" means we're talking to enc_server
+    //read server's response, "ok" means we're talking to enc_server
     char id_response[32];
     memset(id_response, 0, sizeof(id_response));
     if (recv_all(sockfd, id_response, sizeof(id_response)) < 0) {
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
         exit(2);
     }
 
-    // use fwrite so we output exactly numbytes, then add the newline separately
+    //use fwrite so we output exactly numbytes, then add the newline separately
     fwrite(buf, 1, numbytes, stdout);
     putchar('\n');
 
